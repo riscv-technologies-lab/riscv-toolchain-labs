@@ -1,0 +1,9 @@
+on:
+  - push
+jobs:
+  check-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v24
+      - run: nix develop --command just lint
