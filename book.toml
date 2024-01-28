@@ -1,0 +1,9 @@
+[book]
+authors = ["serjzimmerman", "sin-diesel"]
+language = "en"
+multilingual = false
+src = "mdbook-src"
+title = "Introduction to cross-toolchains for RISC-V"
+
+[output.html]
+git-repository-url = "https://github.com/riscv-technologies-lab/riscv-toolchain-labs"
