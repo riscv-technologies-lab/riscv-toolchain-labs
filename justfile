@@ -21,3 +21,7 @@ format:
   @result/bin/format-all
 
 lint: check format
+
+build BUILD_DIR="build":
+  @nix build
+  @cp -Lr result/. {{BUILD_DIR}}

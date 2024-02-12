@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  deploy-mdbook:
+    runs-on: ubuntu-22.04
+    concurrency: ci-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v24
+      - run: nix develop --command just build build/
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/share/public

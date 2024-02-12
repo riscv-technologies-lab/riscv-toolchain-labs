@@ -33,6 +33,11 @@
       devShells = {
         default = import ./shell.nix {inherit pkgs;};
       };
+
+      packages = rec {
+        riscv-toolchain-labs-book = pkgs.callPackage ./default.nix {};
+        default = riscv-toolchain-labs-book;
+      };
     })
     // {
     };
