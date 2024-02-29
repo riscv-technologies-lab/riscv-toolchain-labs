@@ -11,6 +11,7 @@ Navigate to [docker tutorials](https://github.com/riscv-technologies-lab/testgen
 in order to setup your docker.
 
 Pull image and run container:
+
 ```bash
 docker run \
     --interactive \
@@ -74,7 +75,7 @@ Remember, if you encounter error like the following:
 qemu-riscv64: Could not open '/lib/ld-linux-riscv64-lp64d.so.1': No such file or directory
 ```
 
-Pass additionaly `CFLAGS=-static` along with `CC` and `QEMU_USER`
+Pass additionally `CFLAGS=-static` along with `CC` and `QEMU_USER`
 
 We redefined the `CC`, `CFLAGS` and  `QEMU_USER` variables to different value and ran build command. We see now that it ran successfully using specified compiler:
 
@@ -83,6 +84,7 @@ We redefined the `CC`, `CFLAGS` and  `QEMU_USER` variables to different value an
 ```
 
 Now run on QEMU:
+
 ```
 CC=/opt/sc-dt/riscv-gcc/bin/riscv64-unknown-linux-gnu-gcc QEMU_USER=/opt/sc-dt/tools/bin/qemu-riscv64 CFLAGS=-static make run-qemu
 ```
@@ -115,6 +117,7 @@ continue
 ```
 
 Now you should see following:
+
 ```shell
 (gdb) tar rem :1234
 Remote debugging using :1234
@@ -126,16 +129,18 @@ Reading symbols from target:/home/stanislav/mipt/masters/riscv-toolchain-labs/la
 (gdb)
 ```
 
-
 ### Major tasks
+
 #### Porting application to RISC-V
 
 In this task, you must choose an application you will be porting (for instance, your application for quadratic equation solution) and port it to RISC-V:
-* Create a Makefile for your application. Makefile should have build and run on qemu targets, you must be able to change compiler and simulator (and also compilation flags)
-* For convenience, add Makefile target that runs on qemu / runs gdb / builds application using docker instead console:
+
+- Create a Makefile for your application. Makefile should have build and run on qemu targets, you must be able to change compiler and simulator (and also compilation flags)
+- For convenience, add Makefile target that runs on qemu / runs gdb / builds application using docker instead console:
 
 ```shell
 make build-docker # This will enter docker container and build application inside it
 ```
-* Build your app, verify that it runs on a simulator
-* Build with both GNU and LLVM toolchain. Try different optimization levels, compare assemblers. Compare them and list some differences.
+
+- Build your app, verify that it runs on a simulator
+- Build with both GNU and LLVM toolchain. Try different optimization levels, compare assemblers. Compare them and list some differences.
