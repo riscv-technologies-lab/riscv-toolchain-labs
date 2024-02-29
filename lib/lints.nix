@@ -1,20 +1,20 @@
 {inputs, ...}: let
-  inherit (inputs) lint-nix;
+  cpp-extensions = [".c" ".cpp" ".h" ".hpp" ".cc"];
 in
   pkgs: src:
-    lint-nix.lib.lint-nix rec {
+    inputs.lint-nix.lib.lint-nix rec {
       inherit pkgs src;
 
       linters = {
         typos = {
-          ext = "";
+          ext = [".md"] ++ cpp-extensions;
           cmd = "${pkgs.typos}/bin/typos $filename";
         };
       };
 
       formatters = {
         clang-format = {
-          ext = [".c" ".cpp" ".h" ".hpp" ".cc"];
+          ext = cpp-extensions;
           cmd = "${pkgs.clang-tools}/bin/clang-format";
           stdin = true;
         };
@@ -26,7 +26,7 @@ in
         };
 
         mdformat = {
-          ext = [".md"];
+          ext = ".md";
           cmd = "${pkgs.python311Packages.mdformat}/bin/mdformat $filename";
         };
       };
