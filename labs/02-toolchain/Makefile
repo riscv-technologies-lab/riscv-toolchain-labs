@@ -1,6 +1,6 @@
 CC ?= gcc
 QEMU_USER ?= qemu-x86_64
-CCFLAGS ?= 
+CFLAGS ?= 
 
 BUILD_DIR := build
 .DEFAULT_GOAL := hello
@@ -11,7 +11,7 @@ _build_dir:
 	@mkdir -p ${BUILD_DIR}
 
 hello: hello.c _build_dir
-	${CC} ${CCFLAGS} hello.c -o ${BUILD_DIR}/hello.elf
+	${CC} ${CFLAGS} hello.c -o ${BUILD_DIR}/hello.elf
 
 build: hello
 
