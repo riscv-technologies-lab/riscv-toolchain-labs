@@ -9,3 +9,5 @@
 - [Toolchain](./02-toolchain/02-toolchain.md)
 
   - [Live Coding](./02-toolchain/02-live-coding.md)
+
+- [Linkers](./03-linkers/03-linkers.md)
