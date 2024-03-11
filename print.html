@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -339,6 +339,26 @@ Reading symbols from target:/home/stanislav/mipt/masters/riscv-toolchain-labs/la
 and thead toolchain</li>
 <li>Run on qemu, connect with debugger and test out</li>
 </ul>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="learning-linkers"><a class="header" href="#learning-linkers">Learning linkers</a></h2>
+<p>In this lab, you will learn about relocations, how linkers resolve them,
+as well as get some knowledge about static / dynamic linking. Navigate to <code>labs/03-linkers</code> to see the examples we've prepared for you.</p>
+<h3 id="definitions-and-declarations"><a class="header" href="#definitions-and-declarations">Definitions and declarations</a></h3>
+<p><em>Declaration</em> in C introduces identifier and describes its type, whether it is a type, object or a function.</p>
+<p><em>Definition</em> in C instantiates / implement the identifier. It is what linker needs in order to make references to those entities.</p>
+<p>Take a look at following declarations:</p>
+<pre><code class="language-c">extern int bar;
+extern int mul(int a, int b);
+double sum(int a, double b);
+struct foo;
+</code></pre>
+<p>and declarations:</p>
+<pre><code class="language-c">int bar;
+int mul(int a, int b) { return a * b; }
+double sum(int a, double b) { return a + b; }
+struct foo {};
+</code></pre>
+<p>There can be always multiple <em>definitions</em>, but only one <em>declaration</em>. Otherwise, linker would not be able to tell which of the definitions it should use. It must use only on of them, but it can't tell exactly which one.</p>
+<h3 id="relocations"><a class="header" href="#relocations">Relocations</a></h3>
 
                     </main>
 
