@@ -1,4 +1,6 @@
 
+int counter = 0;
+
 unsigned fact(unsigned x) {
   if (x < 2)
     return 1;
