@@ -48,8 +48,8 @@ First, let's from here use only `RISC-V toolchain`:
 ```shell
 source /opt/sc-dt/env.sh # NOTE: if you are using something other than bash, this might not work. If so, try the old fashioned path export
 export CC=/opt/sc-dt/riscv-gcc/bin/
-export PATH=$PATH:/opt/sc-dt/riscv-gcc/bin
-riscv64-unknown-linux-gnu-gcc
+export PATH=${PATH}:/opt/sc-dt/riscv-gcc/bin
+export PATH=${PATH}:/opt/sc-dt/tools/bin # For QEMU
 ```
 
 
@@ -83,24 +83,40 @@ riscv64-unknown-linux-gnu-objdump -d main.o
 
 We will notice that we have address of factorial function is all zeroes:
 
-```
+```shell
     e:	000080e7          	jalr	ra # a <main+0xa>
 ```
 
-Now compile both files and link into a single executable and look at the call address. You will get something like this:
+Now compile both files and link into a single executable and look at the call address:
+
+```shell
+make bin
+```
+```shell
+riscv64-unknown-linux-gnu-objdump -d fact | grep fact
+```
+
+You will see that fact now has been assigned an address and `main` nows how to call it:
+```shell
+fact:     file format elf64-littleriscv
+   105fc:	028000ef          	jal	ra,10624 <fact>
+0000000000010624 <fact>:
+   1063c:	00e7e463          	bltu	a5,a4,10644 <fact+0x20>
+   10642:	a839                	j	10660 <fact+0x3c>
+   1064e:	fd7ff0ef          	jal	ra,10624 <fact>
 
 ```
-  115f:	e8 23 00 00 00       	call   1187 <fact>
-```
+
 
 The linker managed to find `fact` function and insert the correct address for it. It used *relocations* to do it.
 
-```
-readelf -r main.o
+```shell
+riscv64-unknown-linux-gnu-readelf -r main.o
 ```
 
 Possible output:
-```Relocation section '.rela.text' at offset 0x268 contains 8 entries:
+```shell
+Relocation section '.rela.text' at offset 0x268 contains 8 entries:
   Offset          Info           Type           Sym. Value    Sym. Name + Addend
 00000000000a  000c00000012 R_RISCV_CALL      0000000000000000 fact + 0
 00000000000a  000000000033 R_RISCV_RELAX                        0
