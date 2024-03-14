@@ -64,7 +64,7 @@ collect2: error: ld returned 1 exit status
 Linker failed to find definition for *the definition* for `fact` function.
 
 
-#### Question
+#### Task 3.1
 Use `readelf` and `file` utilities to investigate  `main.o` files and its contents and answer following questions:
 * What is the type of the file?
 * How many sections are there?
@@ -128,4 +128,172 @@ Relocation section '.rela.text' at offset 0x268 contains 8 entries:
 000000000026  000000000033 R_RISCV_RELAX                        0
 ```
 
-From the output we see that both `fact` and `printf` names calls have their relocations. These relocations are used
+From the output we see that both `fact` and `printf` names calls have their relocations. These relocations are provided by compiler to asssist linker in resolving symbols.
+
+
+### Static libraries
+
+The following command:
+```
+riscv64-unknown-linux-gnu-gcc main.c fact.c  -o fact
+```
+
+compiles program to executable. But no linker here is invoked? Or is it?
+
+Pass `--verbose` flag to dive deeper into what gcc actually calls under the hood.
+
+Find `collect2` call line:
+
+```
+/opt/sc-dt/riscv-gcc/bin/../libexec/gcc/riscv64-unknown-linux-gnu/12.2.1/collect2 -plugin /opt/sc-dt/riscv-gcc/bin/../libexec/gcc/riscv64-unknown-linux-gnu/12.2.1/liblto_plugin.so -plugin-opt=/opt/sc-dt/riscv-gcc/bin/../libexec/gcc/riscv64-unknown-linux-gnu/12.2.1/lto-wrapper -plugin-opt=-fresolution=/tmp/cc1yCRZY.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --sysroot=/opt/sc-dt/riscv-gcc/bin/../sysroot --eh-frame-hdr -melf64lriscv -dynamic-linker /lib/ld-linux-riscv64-lp64d.so.1 -o fact /opt/sc-dt/riscv-gcc/bin/../sysroot/usr/lib64/lp64d/crt1.o /opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/crti.o /opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/crtbegin.o -L/opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1 -L/opt/sc-dt/riscv-gcc/bin/../lib/gcc -L/opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/../../../../riscv64-unknown-linux-gnu/lib/../lib64/lp64d -L/opt/sc-dt/riscv-gcc/bin/../sysroot/lib/../lib64/lp64d -L/opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/../../../../riscv64-unknown-linux-gnu/lib -L/opt/sc-dt/riscv-gcc/bin/../sysroot/lib64/lp64d -L/opt/sc-dt/riscv-gcc/bin/../sysroot/usr/lib64/lp64d -L/opt/sc-dt/riscv-gcc/bin/../sysroot/lib /tmp/ccOEmH9J.o /tmp/cc6v5KHP.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/crtend.o /opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/crtn.o
+
+```
+
+`collect2` is the actual command called in the process of linking.
+
+Try examining every argument and describe what it is responsible for.
+
+Mostly all of the arguments are paths to libraries.
+
+Static libraries are embedded to applications code directly.
+
+Let's create or own little static library:
+
+```
+riscv64-unknown-linux-gnu-ar cr libfact.o fact.o
+```
+
+Use `nm` utility to get the list of symbols available in the archive:
+```
+riscv64-unknown-linux-gnu-nm libfact.o
+```
+
+```
+fact.o:
+0000000000010294 r __abi_tag
+0000000000012040 B __BSS_END__
+0000000000012038 B __bss_start
+0000000000012038 b completed.0
+0000000000012000 D __DATA_BEGIN__
+0000000000012000 D __data_start
+0000000000012000 W data_start
+000000000001048a t deregister_tm_clones
+00000000000104d0 t __do_global_dtors_aux
+0000000000011e18 d __do_global_dtors_aux_fini_array_entry
+0000000000012030 D __dso_handle
+0000000000011e20 d _DYNAMIC
+0000000000012038 D _edata
+0000000000012040 B _end
+0000000000010524 T fact
+00000000000104f2 t frame_dummy
+0000000000011e10 d __frame_dummy_init_array_entry
+0000000000010608 r __FRAME_END__
+0000000000012020 d _GLOBAL_OFFSET_TABLE_
+0000000000012800 A __global_pointer$
+00000000000105cc r __GNU_EH_FRAME_HDR
+0000000000011e18 d __init_array_end
+0000000000011e10 d __init_array_start
+0000000000012028 D _IO_stdin_used
+00000000000105c2 T __libc_csu_fini
+000000000001056a T __libc_csu_init
+                 U __libc_start_main@GLIBC_2.27
+000000000001047e t load_gp
+00000000000104f4 T main
+                 U printf@GLIBC_2.27
+0000000000010410 t _PROCEDURE_LINKAGE_TABLE_
+00000000000104a8 t register_tm_clones
+0000000000012028 D __SDATA_BEGIN__
+0000000000010450 T _start
+0000000000012000 D __TMC_END__
+
+```
+
+To link with your static or dynamic library, pass `-llib`  argument to compilation flags. `lib` is the name of library.
+
+Note that linking directly with `ld` is strongly discouraged, instead, use `gcc` or `clang` driver and pass additional options to linker if needed.
+
+#### Task 3.2
+* Create your own static library for RISC-V. It would be even better if application was useful, for instance, a custom C logging library.
+
+### Dynamic linking
+
+Static linking is portable, because all library code is embedded in the application and no platform support required. But this makes application's code size increase dramatically.
+
+The solution to this problem is **dynamic libraries**
+
+Let's create our little dynamic library and link our application against it:
+
+```shell
+CFLAGS=-fPIC make fact
+riscv64-unknown-linux-gnu-gcc -shared fact.o -o libfact.so
+```
+```shell
+$ file libfact.so
+libfact.so: ELF 64-bit LSB shared object, UCB RISC-V, RVC, double-float ABI, version 1 (SYSV), dynamically linked, not stripped
+
+```
+
+Now link your library against `libfact.so`:
+
+```
+riscv64-unknown-linux-gnu-gcc main.o -o fact -lfact
+/opt/sc-dt/riscv-gcc/bin/../lib/gcc/riscv64-unknown-linux-gnu/12.2.1/../../../../riscv64-unknown-linux-gnu/bin/ld: cannot find -lfact: No such file or directory
+collect2: error: ld returned 1 exit status
+```
+
+This happened because our `libfact.so` is in the current working directory, and linker does not now it should look here.
+
+You can pass paths where linker should search for the libraries with `-L` option:
+
+```
+riscv64-unknown-linux-gnu-gcc main.o -o fact -L. -lfact
+```
+
+We told the linker to search for `libfact` inside our current working directory.
+
+```
+file fact
+fact: ELF 64-bit LSB executable, UCB RISC-V, RVC, double-float ABI, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-riscv64-lp64d.so.1, for GNU/Linux 4.15.0, not stripped
+```
+
+Now let's run it with qemu:
+
+```
+❯ qemu-riscv64 ./fact
+./fact: error while loading2 shared libraries: libfact.so: cannot open shared object file: No such file or directory
+
+```
+
+What is wrong? We linker the library, didn't we?
+
+The reason is that though we specified where to look for dynamic library, we didn't put that information in the binary.
+
+Let's do it using `rpath`:
+
+```
+riscv64-unknown-linux-gnu-gcc main.o -o fact -L. -lfact -Wl,-rpath,.
+```
+
+Now let's try again:
+
+```
+qemu-riscv64  ./fact
+./fact: error while loading shared libraries: libc.so.6: cannot open shared object file: No such file or directory
+```
+
+Now `qemu` failed to find the C standard library.
+We already know how to fix it, let's pass path to `glibc`:
+
+
+```
+❯ qemu-riscv64 -L . -L /opt/sc-dt/riscv-gcc/sysroot/ ./fact
+120
+```
+
+Our factorial finally works, and we learned to create dynamic libraries.
+
+#### Task 3.3
+* Create your own little dynamic library. First do it with x86 toolchain, then for RISCV.
+* Link application with the library and make it run on QEMU and on LicheePi (when available).
+
+
