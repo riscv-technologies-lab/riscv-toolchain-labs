@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -359,6 +359,33 @@ struct foo {};
 </code></pre>
 <p>There can be always multiple <em>definitions</em>, but only one <em>declaration</em>. Otherwise, linker would not be able to tell which of the definitions it should use. It must use only on of them, but it can't tell exactly which one.</p>
 <h3 id="relocations"><a class="header" href="#relocations">Relocations</a></h3>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="intro-to-linux-and-building-it-for-embedded-systems"><a class="header" href="#intro-to-linux-and-building-it-for-embedded-systems">Intro to Linux and building it for embedded systems</a></h2>
+<p>In this lab you will be introduced to basic concepts from Linux based systems.
+Basic structure and overview of linux distributions (or distros) will be presented.
+You will use <code>qemu-system</code> to boot an existing image for LicheePi4A RISC-V SBC.</p>
+<p>First of all, you need to build some of the required tools and download a system image,
+which you will need going forth. Following the <a href="04-linux-intro/">preparations</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<p>The official linux distro for Lichee PI 4A is <a href="https://wiki.sipeed.com/hardware/en/lichee/th1520/lpi4a/7_develop_revyos.html">revyos</a></p>
+<h2 id="revyos-image"><a class="header" href="#revyos-image">Revyos image</a></h2>
+<p>Download a prebuilt system image from the manufacturer <a href="https://wiki.sipeed.com/hardware/en/lichee/th1520/lpi4a/3_images.html">here</a>.
+Here's a direct <a href="https://mega.nz/folder/phoQlBTZ#cZeQ3qZ__pDvP94PT3_bGA/file/k4Bg2BCD">link</a>. Please choose the latest LPI4A_BASIC archive.
+Mega has arbitrary restrictions on download size, so LPI4A_FULL is too large and you will get throttled.</p>
+<h3 id="build-revyos-qemu"><a class="header" href="#build-revyos-qemu">Build RevyOS QEMU</a></h3>
+<p>Vendor has implemented some custom RISC-V spec <em>extensions</em>, so in order to run binaries compiled for their system you will
+need a build of custom QEMU.</p>
+<h4 id="build-instructions-for-ubuntu-2204"><a class="header" href="#build-instructions-for-ubuntu-2204">Build instructions for <code>ubuntu-22.04</code>.</a></h4>
+<p>Install the build-time dependencies.</p>
+<pre><code class="language-bash">sudo apt install ninja-build python3-venv build-essential libglib2.0-dev flex bison libpixman-1-dev git fdisk file
+</code></pre>
+<p>Fetch the repository and compile it from source.</p>
+<pre><code class="language-bash">git clone https://github.com/revyos/qemu revyos-qemu
+cd revyos-qemu
+git submodule init
+git submodule update --recursive
+./configure --target-list=riscv64-softmmu,riscv64-linux-user --with-git='tsocks git'
+make -j $(nproc)
+</code></pre>
 
                     </main>
 

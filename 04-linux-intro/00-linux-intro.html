@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Toolchain - Introduction to cross-toolchains for RISC-V</title>
+        <title>Linux intro - Introduction to cross-toolchains for RISC-V</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html" class="active"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html" class="active"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -176,111 +176,22 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="downloading-toolchain-and-compiling-your-own"><a class="header" href="#downloading-toolchain-and-compiling-your-own">Downloading toolchain and compiling your own</a></h2>
-<p>In this lab you will take a look at GNU and LLVM toolchains, where to find them and how to setup them
-on your system.
-You will also get acquainted with docker and its applications, we will use docker image with
-prebuilt sc-dt package, which includes GNU ang LLVM toolchains.</p>
-<h3 id="docker-usage"><a class="header" href="#docker-usage">Docker usage</a></h3>
-<p>Navigate to <a href="https://github.com/riscv-technologies-lab/testgen-lectures/tree/main/tutorials">docker tutorials</a>
-in order to setup your docker.</p>
-<p>Pull image and run container:</p>
-<pre><code class="language-bash">docker run \
-    --interactive \
-    --tty \
-    --detach \
-    --env &quot;TERM=xterm-256color&quot; \
-    --mount type=bind,source=&quot;$(pwd)&quot;,target=&quot;$(pwd)&quot; \
-    --name cpp \
-    --ulimit nofile=1024:1024 \
-    ghcr.io/riscv-technologies-lab/rv_tools_image:1.0.1
-</code></pre>
-<p>Wait for the image to pull, then you will enter the container.</p>
-<h3 id="glancing-at-your-first-toolchain"><a class="header" href="#glancing-at-your-first-toolchain">Glancing at your first toolchain</a></h3>
-<p>The docker container has both GNU and LLVM toolchains in it. They are both installed in <code>/opt/sc-dt/</code> directory.</p>
-<p>Here is the GNU toolchain: <code>/opt/sc-dt/riscv-gcc</code>
-And here is the LLVM toolchain: <code>/opt/sc-dt/llvm/</code></p>
-<p>You will also see <code>env.sh</code> script in <code>/opt/sc-dt/</code> directory. This script exports environment variables to
-your environment. Try running following:</p>
-<pre><code class="language-bash">source /opt/sc-dt/env.sh
-</code></pre>
-<p><em>Task</em>: what changed after running the script? Take a look at your environmental variables before and after running the script. Compare and provide description. What does <code>source</code> command do?</p>
-<p>Now you can access toolchains from <code>sc-dt</code> with either absolute typing: <code>/opt/sc-dt/riscv-gcc/</code> or
-using environmental variable: <code>$SC_GCC_PATH/</code></p>
-<p>Navigate to <code>labs/02-toolchain/</code> directory.
-Take a look at <code>hello.c</code>, this is the same program you tried at the previous lab, and the same <code>Makefile</code>.
-We will use those with our new toolchain.</p>
-<p>As you can see in the <code>Makefile</code>, there are a few variables at the top:</p>
-<pre><code class="language-makefile">CC ?= gcc
-QEMU_USER ?= qemu-x86_64
-CCFLAGS ?= 
-</code></pre>
-<p>It is a very common and a good practice to set such variables and use them throughout the Makefile.
-The reason is, it is much more readable, and they can be redefined with some new value. For instance,
-we can change the compiler, change the flags while using the same Makefile for our program.</p>
-<p>Let's change the default compile in our <code>Makefile</code> to the one from sc-dt GNU toolchain:</p>
-<p><em>Note</em>: how do variables work in shell? Try accomplishing the same goal using <code>export</code> and explain the difference.</p>
-<pre><code class="language-bash">CC=/opt/sc-dt/riscv-gcc/bin/riscv64-unknown-linux-gnu-gcc QEMU_USER=/opt/sc-dt/tools/bin/qemu-riscv64 make build
-</code></pre>
-<p>Remember, if you encounter error like the following:</p>
-<pre><code>qemu-riscv64: Could not open '/lib/ld-linux-riscv64-lp64d.so.1': No such file or directory
-</code></pre>
-<p>Pass additionally <code>CFLAGS=-static</code> along with <code>CC</code> and <code>QEMU_USER</code></p>
-<p>We redefined the <code>CC</code>, <code>CFLAGS</code> and  <code>QEMU_USER</code> variables to different value and ran build command. We see now that it ran successfully using specified compiler:</p>
-<pre><code class="language-bash">/opt/sc-dt/riscv-gcc/bin/riscv64-unknown-linux-gnu-gcc  hello.c -o build/hello.elf
-</code></pre>
-<p>Now run on QEMU:</p>
-<pre><code>CC=/opt/sc-dt/riscv-gcc/bin/riscv64-unknown-linux-gnu-gcc QEMU_USER=/opt/sc-dt/tools/bin/qemu-riscv64 CFLAGS=-static make run-qemu
-</code></pre>
-<h3 id="connecting-with-debugger"><a class="header" href="#connecting-with-debugger">Connecting with debugger</a></h3>
-<p>It's time for us to use the debugger. We'll stick with GDB from sc-dt for now.</p>
-<p>The debugger is located at <code>$SC_GCC_PATH/bin/riscv64-unknown-linux-gnu-gdb</code></p>
-<p>First, add <code>-g</code> to <code>CFLAGS</code> variable. This adds debug symbols to final binary.
-They significantly affect binary size, but without them we cannot to proper debugging.
-<em>Task</em>: compare binary size with and without debug symbols enabled. Use <code>objdump</code> tool from
-toolchain to find those debug symbols added by compiler.</p>
-<p>Now connect to qemu, make it wait for gdb connection:</p>
-<p><code>/opt/sc-dt/tools/bin/qemu-riscv64 -g 1234 build/hello.elf</code></p>
-<p>Open another terminal, and use gdb to connect to it:</p>
-<p><code>/opt/sc-dt/riscv-gcc/bin/riscv64-unknown-linux-gnu-gdb</code></p>
-<p>Inside gdb, connect to qemu by port 1234. Set breakpoint on main and run application:</p>
-<pre><code>target remote localhost:1234 # note: you can use &quot;tar rem :1234&quot;
-b main
-continue
-</code></pre>
-<p>Now you should see following:</p>
-<pre><code class="language-shell">(gdb) tar rem :1234
-Remote debugging using :1234
-Reading /home/stanislav/mipt/masters/riscv-toolchain-labs/labs/02-toolchain/fibb.elf from remote target...
-warning: File transfers from remote targets can be slow. Use &quot;set sysroot&quot; to access files locally instead.
-Reading /home/stanislav/mipt/masters/riscv-toolchain-labs/labs/02-toolchain/fibb.elf from remote target...
-Reading symbols from target:/home/stanislav/mipt/masters/riscv-toolchain-labs/labs/02-toolchain/fibb.elf...
-0x000000000001054c in _start ()
-(gdb)
-</code></pre>
-<h3 id="major-tasks"><a class="header" href="#major-tasks">Major tasks</a></h3>
-<h4 id="porting-application-to-risc-v"><a class="header" href="#porting-application-to-risc-v">Porting application to RISC-V</a></h4>
-<p>In this task, you must choose an application you will be porting (for instance, your application for quadratic equation solution) and port it to RISC-V:</p>
-<ul>
-<li>Create a Makefile for your application. Makefile should have build and run on qemu targets, you must be able to change compiler and simulator (and also compilation flags)</li>
-<li>For convenience, add Makefile target that runs on qemu / runs gdb / builds application using docker instead console:</li>
-</ul>
-<pre><code class="language-shell">make build-docker # This will enter docker container and build application inside it
-</code></pre>
-<ul>
-<li>Build your app, verify that it runs on a simulator</li>
-<li>Build with both GNU and LLVM toolchain. Try different optimization levels, compare assemblers. Compare them and list some differences.</li>
-</ul>
+                        <h2 id="intro-to-linux-and-building-it-for-embedded-systems"><a class="header" href="#intro-to-linux-and-building-it-for-embedded-systems">Intro to Linux and building it for embedded systems</a></h2>
+<p>In this lab you will be introduced to basic concepts from Linux based systems.
+Basic structure and overview of linux distributions (or distros) will be presented.
+You will use <code>qemu-system</code> to boot an existing image for LicheePi4A RISC-V SBC.</p>
+<p>First of all, you need to build some of the required tools and download a system image,
+which you will need going forth. Following the <a href="">preparations</a></p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../01-intro-to-cross/01-hello-riscv.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../03-linkers/03-linkers.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../02-toolchain/02-live-coding.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../04-linux-intro/01-preparations.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -290,11 +201,11 @@ Reading symbols from target:/home/stanislav/mipt/masters/riscv-toolchain-labs/la
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../01-intro-to-cross/01-hello-riscv.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../03-linkers/03-linkers.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../02-toolchain/02-live-coding.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../04-linux-intro/01-preparations.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
