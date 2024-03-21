@@ -65,7 +65,9 @@ Linker failed to find definition for *the definition* for `fact` function.
 
 
 #### Task 3.1
-Use `readelf` and `file` utilities to investigate  `main.o` files and its contents and answer following questions:
+Use `readelf` and `file` utilities to investigate  `main.o` file and its contents and answer following questions:
+
+Format for the following assignment: answer the questions in markdown file.
 * What is the type of the file?
 * How many sections are there?
 * List all entries in the same format `readelf`
@@ -213,6 +215,11 @@ To link with your static or dynamic library, pass `-llib`  argument to compilati
 Note that linking directly with `ld` is strongly discouraged, instead, use `gcc` or `clang` driver and pass additional options to linker if needed.
 
 #### Task 3.2
+
+* Create a separare directory with files for your static library
+* Write Makefile target which creates static library
+* Use `nm` to find out what
+* Write Makefile target which links 
 * Create your own static library for RISC-V. It would be even better if application was useful, for instance, a custom C logging library.
 
 ### Dynamic linking
