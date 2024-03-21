@@ -5,8 +5,6 @@ as well as get some knowledge about static / dynamic linking. Navigate to `labs/
 
 ### Definitions and declarations
 
-\<\<\<\<\<\<\< HEAD
-
 *Declaration* in C introduces identifier and describes its type, whether it is a type, object or a function.
 
 *Definition* in C instantiates / implement the identifier. It is what linker needs in order to make references to those entities.
@@ -20,11 +18,7 @@ double sum(int a, double b);
 struct foo;
 ```
 
-# and declarations:
-
 Take a look at `main.c` and `fact.c` provided.
-
-> > > > > > > 402b1ca (Modify examples for RISC-V)
 
 ```c
 int main() {
@@ -35,14 +29,12 @@ int main() {
 ```
 
 ```c
-
 unsigned fact(unsigned x) {
   if (x < 2)
     return 1;
 
   return x * fact(x - 1);
 }
-
 ```
 
 First, let's from here use only `RISC-V toolchain`:
