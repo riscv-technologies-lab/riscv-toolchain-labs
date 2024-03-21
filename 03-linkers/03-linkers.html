@@ -180,7 +180,6 @@
 <p>In this lab, you will gain hands-on experience with relocations, how linkers resolve them,
 as well as get some knowledge about static / dynamic linking. Navigate to <code>labs/03-linkers</code> to see the examples we've prepared for you.</p>
 <h3 id="definitions-and-declarations"><a class="header" href="#definitions-and-declarations">Definitions and declarations</a></h3>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <p><em>Declaration</em> in C introduces identifier and describes its type, whether it is a type, object or a function.</p>
 <p><em>Definition</em> in C instantiates / implement the identifier. It is what linker needs in order to make references to those entities.</p>
 <p>Take a look at following declarations:</p>
@@ -189,37 +188,19 @@ extern int mul(int a, int b);
 double sum(int a, double b);
 struct foo;
 </code></pre>
-<h1 id="and-declarations"><a class="header" href="#and-declarations">and declarations:</a></h1>
 <p>Take a look at <code>main.c</code> and <code>fact.c</code> provided.</p>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>402b1ca (Modify examples for RISC-V)</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
 <pre><code class="language-c">int main() {
   unsigned f = fact(5);
   printf(&quot;%u\n&quot;, f);
   return 0;
 }
 </code></pre>
-<pre><code class="language-c">
-unsigned fact(unsigned x) {
+<pre><code class="language-c">unsigned fact(unsigned x) {
   if (x &lt; 2)
     return 1;
 
   return x * fact(x - 1);
 }
-
 </code></pre>
 <p>First, let's from here use only <code>RISC-V toolchain</code>:</p>
 <pre><code class="language-shell">source /opt/sc-dt/env.sh # NOTE: if you are using something other than bash, this might not work. If so, try the old fashioned path export
