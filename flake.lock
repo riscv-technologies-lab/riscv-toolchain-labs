@@ -18,6 +18,22 @@
         "type": "github"
       }
     },
+    "lf-dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1710007142,
+        "narHash": "sha256-IHiOvO6mCVUxSfjJMNrrtIdtJkGF5T+0NnlPxgeIYEk=",
+        "owner": "lf-",
+        "repo": "dotfiles",
+        "rev": "5332dd44b021069433805bca36949ce256de7a19",
+        "type": "github"
+      },
+      "original": {
+        "owner": "lf-",
+        "repo": "dotfiles",
+        "type": "github"
+      }
+    },
     "lint-nix": {
       "locked": {
         "lastModified": 1685612071,
@@ -52,6 +68,7 @@
     "root": {
       "inputs": {
         "flake-utils": "flake-utils",
+        "lf-dotfiles": "lf-dotfiles",
         "lint-nix": "lint-nix",
         "nixpkgs": "nixpkgs"
       }
