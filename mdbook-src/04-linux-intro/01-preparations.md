@@ -18,7 +18,7 @@ need a build of custom QEMU.
 Install the build-time dependencies.
 
 ```bash
-sudo apt install ninja-build python3-venv build-essential libglib2.0-dev flex bison libpixman-1-dev git fdisk file
+sudo apt install ninja-build python3-venv build-essential libglib2.0-dev flex bison libpixman-1-dev git fdisk file tsocks
 ```
 
 Fetch the repository and compile it from source.
