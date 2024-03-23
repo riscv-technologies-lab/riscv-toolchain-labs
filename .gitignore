@@ -3,3 +3,4 @@ book/
 /result
 **/*.elf
 **/build/
+.vscode/
