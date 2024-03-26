@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html" class="active"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html" class="active"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -182,6 +182,27 @@
 <p>Download a prebuilt system image from the manufacturer <a href="https://wiki.sipeed.com/hardware/en/lichee/th1520/lpi4a/3_images.html">here</a>.
 Here's a direct <a href="https://mega.nz/folder/phoQlBTZ#cZeQ3qZ__pDvP94PT3_bGA/file/k4Bg2BCD">link</a>. Please choose the latest LPI4A_BASIC archive.
 Mega has arbitrary restrictions on download size, so LPI4A_FULL is too large and you will get throttled.</p>
+<h3 id="distrobox-for-building-inside-ubuntu-2204-container"><a class="header" href="#distrobox-for-building-inside-ubuntu-2204-container">Distrobox for building inside ubuntu-22.04 container.</a></h3>
+<p>Distrobox is a tool for working inside OCI containers in your shell. Visit the <a href="https://github.com/89luca89/distrobox/">homepage</a>
+or the official <a href="https://distrobox.it/">website</a>. Follow the installation instructions for your distribution.</p>
+<p>Excerpt from the official installation docs:</p>
+<blockquote>
+<p>If you like to live your life dangerously, or you want the latest release,
+you can trust [the author of distrobox] and simply run this in your terminal:</p>
+</blockquote>
+<pre><code class="language-bash">curl -s https://raw.githubusercontent.com/89luca89/distrobox/main/install | sudo sh
+# or using wget
+wget -qO- https://raw.githubusercontent.com/89luca89/distrobox/main/install | sudo sh
+</code></pre>
+<p>After you've installed distrobox you can create a fresh <code>ubuntu-22.04</code> container with a
+single command:</p>
+<pre><code class="language-bash">distrobox create --image ubuntu:22.04 --name ubuntu-22.04-revyos-sdk
+</code></pre>
+<p>When the command has finished downloading OCI container image you can enter it like so:</p>
+<pre><code class="language-bash">distrobox enter ubuntu-22.04-revyos-sdk
+</code></pre>
+<p><strong>All of the subsequent instructions assume you are working inside the newly created container.</strong>
+If you have any questions/problems please refer to the official <a href="https://distrobox.it/#quick-start">quick-start guide</a>.</p>
 <h3 id="build-revyos-qemu"><a class="header" href="#build-revyos-qemu">Build RevyOS QEMU</a></h3>
 <p>Vendor has implemented some custom RISC-V spec <em>extensions</em>, so in order to run binaries compiled for their system you will
 need a build of custom QEMU.</p>
@@ -196,6 +217,8 @@ git submodule init
 git submodule update --recursive
 ./configure --target-list=riscv64-softmmu,riscv64-linux-user --with-git='tsocks git'
 make -j $(nproc)
+sudo make install # This will install qemu-riscv64 and qemu-system-riscv64 inside the container
+# Your host system will not be affected.
 </code></pre>
 
                     </main>
@@ -206,6 +229,9 @@ make -j $(nproc)
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
+                            <a rel="next prefetch" href="../04-linux-intro/02-boot-revyos-linux-qemu.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -217,6 +243,9 @@ make -j $(nproc)
                         <i class="fa fa-angle-left"></i>
                     </a>
 
+                    <a rel="next prefetch" href="../04-linux-intro/02-boot-revyos-linux-qemu.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>

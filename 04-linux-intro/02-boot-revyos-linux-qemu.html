@@ -1,0 +1,432 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>RevyOS on QEMU - Introduction to cross-toolchains for RISC-V</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html" class="active"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Introduction to cross-toolchains for RISC-V</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/riscv-technologies-lab/riscv-toolchain-labs" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h2 id="prerequisites"><a class="header" href="#prerequisites">Prerequisites</a></h2>
+<p>You will need to complete all of the steps described in the <a href="04-linux-intro/01-preparations.html">preparations</a>.
+Do not forget to enter the container with <code>distrobox enter ubuntu-22.04-revyos-sdk</code>.</p>
+<h3 id="mounting-the-filesystem"><a class="header" href="#mounting-the-filesystem">Mounting the filesystem</a></h3>
+<pre><code class="language-bash">mkdir revyos-with-qemu
+cd revyos-with-qemu
+cp &lt;path to LPI4A_BASIC_20240111.zip&gt; ./
+unzip LPI4A_BASIC_20240111.zip
+# Archive:  LPI4A_BASIC_20240111.zip
+#    creating: LPI4A_BASIC_20240111/
+#   inflating: LPI4A_BASIC_20240111/root.ext4
+#   inflating: LPI4A_BASIC_20240111/boot.ext4
+#   inflating: LPI4A_BASIC_20240111/flash_image.sh
+#   inflating: LPI4A_BASIC_20240111/fastboot
+#   inflating: LPI4A_BASIC_20240111/u-boot-with-spl-lpi4a.bin
+#   inflating: LPI4A_BASIC_20240111/u-boot-with-spl-lpi4a-16g.bin 
+</code></pre>
+<p>The extracted image contains:</p>
+<ul>
+<li><code>u-boot-with-spl-lpi4a.bin</code> - This is the secondary program loader (SPL) and primary uboot for 8Gb DDR board.</li>
+<li><code>u-boot-with-spl-lpi4a-16g.bin</code> - Same as <code>u-boot-with-spl-lpi4a.bin</code>, but for the 16Gb variant.</li>
+<li><code>root.ext4</code> - Root filesystem</li>
+<li><code>boot.ext4</code> - Boot partition</li>
+</ul>
+<pre><code class="language-bash">fdisk -l LPI4A_BASIC_20240111/root.ext4
+# Disk LPI4A_BASIC_20240111/root.ext4: 4 GiB, 4294967296 bytes, 8388608 sectors
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+fdisk -l LPI4A_BASIC_20240111/boot.ext4
+# Disk LPI4A_BASIC_20240111/boot.ext4: 500 MiB, 524288000 bytes, 1024000 sectors
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+</code></pre>
+<p>In order to view the contents of the filesystems you need to mount them.</p>
+<pre><code class="language-bash">sudo mkdir /mnt/boot /mnt/root -p
+sudo mount LPI4A_BASIC_20240111/boot.ext4 /mnt/boot -v
+# mount: /dev/loop0 mounted on /mnt/boot.
+sudo mount LPI4A_BASIC_20240111/root.ext4 /mnt/root -v
+# mount: /dev/loop1 mounted on /mnt/root.
+cd /mnt/boot
+# ⬢ [Docker] ❯ lla
+# Permissions Size User Date Modified Name
+# drwxr-xr-x     - root  9 Oct  2023   dtbs
+# drwxr-xr-x     - root 14 Dec  2023   extlinux
+# drwx------     - root  9 Oct  2023   lost+found
+# .rw-r--r--  167k root  6 Sep  2023   config-5.10.113-lpi4a
+# .rwxr-xr-x   86k root  8 Oct  2023   fw_dynamic.bin
+# .rwxr-xr-x   23M root 20 Dec  2023   Image
+# .rw-r--r--  5.2M root  9 Oct  2023   initrd.img-5.10.113-lpi4a
+# .rwxr-xr-x   50k root  6 Sep  2023   light_aon_fpga.bin
+# .rwxr-xr-x  6.1M root  8 Oct  2023   light_c906_audio.bin
+# .rw-r--r--  6.2M root  6 Sep  2023   System.map-5.10.113-lpi4a
+# .rwxr-xr-x   23M root  6 Sep  2023   vmlinux-5.10.113-lpi4a
+</code></pre>
+<p>Files of the primary interest are:</p>
+<ul>
+<li><code>fw_dynamic.bin</code> - OpenSBI with dynamic information. More info at <a href="https://github.com/riscv-software-src/opensbi/blob/master/docs/firmware/fw_dynamic.md">fw_dynamic.md</a></li>
+<li><code>dtbs</code> - Compiled device tree binaries.</li>
+<li><code>Image</code> - Kernel, which is run by the bootloader (uboot). This is a statically linked binary.</li>
+<li><code>vmlinux-5.10.113-lpi4a</code> - Kernel binary produced during the compilation process. Is not bootable.</li>
+<li><code>initrd.img-5.10.113-lpi4a</code> - Initial ram disk for <em>Phase 1</em> init before rootfs can be mounted.</li>
+</ul>
+<p>To view the contents of <code>initrd</code> it first needs to be uncompressed.</p>
+<pre><code class="language-bash">cd &lt;path to revyos-with-qemu&gt;
+cp /mnt/boot/initrd.img-5.10.113-lpi4a .
+file initrd.img-5.10.113-lpi4a
+# initrd.img-5.10.113-lpi4a: gzip compressed data, was &quot;mkinitramfs-MAIN_oNzF9f&quot;, last modified: Mon Oct  9 14:10:38 2023, from Unix, original size modulo 2^32 12879360
+gunzip initrd.img-5.10.113-lpi4a -d -c &gt; initrd.img-5.10.113-lpi4a.cpio
+file initrd.img-5.10.113-lpi4a.cpio
+# initrd.img-5.10.113-lpi4a.cpio: ASCII cpio archive (SVR4 with no CRC)
+cpio --list -i &lt; ./initrd.img-5.10.113-lpi4a.cpio | head -n 15
+# .
+# bin
+# conf
+# conf/arch.conf
+# conf/conf.d
+# conf/initramfs.conf
+# etc
+# etc/fstab
+# etc/ld.so.cache
+# etc/ld.so.conf
+# etc/ld.so.conf.d
+# etc/ld.so.conf.d/libc.conf
+# etc/ld.so.conf.d/riscv64-linux-gnu.conf
+# etc/modprobe.d
+# etc/mtab
+# 25155 blocks
+mkdir initrd-contents
+cpio -idmv &lt; ../initrd.img-5.10.113-lpi4a.cpio
+# ⬢ [Docker] ❯ lla
+# Permissions Size Date Modified Name
+# lrwxrwxrwx     - 26 Mar 12:02   bin -&gt; usr/bin
+# drwxr-xr-x     - 26 Mar 12:02   conf
+# drwxr-xr-x     - 26 Mar 12:02   etc
+# lrwxrwxrwx     - 26 Mar 12:02   lib -&gt; usr/lib
+# drwxr-xr-x     -  9 Oct  2023   run
+# lrwxrwxrwx     - 26 Mar 12:02   sbin -&gt; usr/sbin
+# drwxr-xr-x     - 26 Mar 12:02   scripts
+# drwxr-xr-x     - 26 Mar 12:02   usr
+# .rwxr-xr-x  6.6k 10 Apr  2022   init
+</code></pre>
+<h3 id="running-the-extracted-image-with-qemu"><a class="header" href="#running-the-extracted-image-with-qemu">Running the extracted image with QEMU</a></h3>
+<p>Now that we have everything extracted it's easy to run the image
+with the custom vendor fork of qemu, which you've previously compiled from source.</p>
+<p>First you will need to modify the <code>/mnt/root/etc/fstab</code> file a bit.
+Replace the contents of the file with the following:</p>
+<pre><code># UNCONFIGURED FSTAB FOR BASE SYSTEM
+/dev/vda /   auto    defaults    1 1
+/dev/vdb /boot   auto    defaults    0 0
+</code></pre>
+<p>To do this you can use your faviourite editor.</p>
+<pre><code class="language-bash">echo &quot;# UNCONFIGURED FSTAB FOR BASE SYSTEM
+/dev/vda /   auto    defaults    1 1
+/dev/vdb /boot   auto    defaults    0 0
+&quot; &gt; fstab
+sudo cp fstab /mnt/root/etc/fstab
+cat /mnt/root/etc/fstab
+# # UNCONFIGURED FSTAB FOR BASE SYSTEM
+# /dev/vda /   auto    defaults    1 1
+# /dev/vdb /boot   auto    defaults    0 0
+</code></pre>
+<p>Now you can launch qemu with the following command:</p>
+<pre><code class="language-bash">sudo umount /mnt/boot
+e2fsck -y LPI4A_BASIC_20240111/root.ext4
+e2fsck -y LPI4A_BASIC_20240111/boot.ext4
+sync
+qemu-system-riscv64 -M virt -cpu c910v -smp 1 -m 3G -kernel /mnt/boot/Image -append &quot;root=/dev/vda rw console=ttyS0&quot; -drive file=LPI4A_BASIC_20240111/root.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -drive file=LPI4A_BASIC_20240111/boot.ext4,format=raw,id=hd1 -device virtio-blk-device,drive=hd1 -initrd /mnt/boot/initrd.img-5.10.113-lpi4a -nographic
+</code></pre>
+<p>You will see the boot log that looks something like this:</p>
+<pre><code>OpenSBI v0.9
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ &lt; | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name             : riscv-virtio,qemu
+Platform Features         : timer,mfdeleg
+Platform HART Count       : 1
+Firmware Base             : 0x80000000
+Firmware Size             : 100 KB
+Runtime SBI Version       : 0.2
+
+....
+
+[    0.000000] Linux version 5.10.113+ (ubuntu@ubuntu-2204-buildserver) (riscv64-unknown-linux-gnu-gcc (Xuantie-900 linux-5.10.4 glibc gcc Toolchain V2.6.1 B-20220906) 10.2.0, GNU ld (GNU Binutils) 2.35) #1 SMP PREEMPT Wed Dec 20 08:25:29 UTC 2023
+[    0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80200000
+[    0.000000] efi: UEFI not found.
+[    0.000000] Initial ramdisk at: 0x(____ptrval____) (5160960 bytes)
+[    0.000000] Zone ranges:
+[    0.000000]   DMA32    [mem 0x0000000080200000-0x00000000ffffffff]
+[    0.000000]   Normal   [mem 0x0000000100000000-0x000000013fffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080200000-0x000000013fffffff]
+</code></pre>
+<p>After a while you should see the login prompt:</p>
+<pre><code class="language-bash">[  OK  ] Started serial-getty@ttyS0…rvice - Serial Getty on ttyS0.
+[  OK  ] Reached target getty.target - Login Prompts.
+[  OK  ] Reached target multi-user.target - Multi-User System.
+[  OK  ] Reached target graphical.target - Graphical Interface.
+         Starting systemd-update-ut… Record Runlevel Change in UTMP...
+[  OK  ] Finished systemd-update-ut… - Record Runlevel Change in UTMP.
+
+Debian GNU/Linux 12 lpi4a ttyS0
+
+lpi4a login:
+</code></pre>
+<p>Enter the default login <code>debian</code> and password <code>debian</code> as documented in the <a href="https://wiki.sipeed.com/hardware/en/lichee/th1520/lpi4a/3_images.html">docs</a>.</p>
+<p>You should now be in the shell:</p>
+<pre><code>
+   ____              _ ____  ____  _  __  ____  _                     _
+  |  _ \ _   _ _   _(_) ___||  _ \| |/ / / ___|(_)_ __   ___  ___  __| |
+  | |_) | | | | | | | \___ \| | | | ' /  \___ \| | '_ \ / _ \/ _ \/ _` |
+  |  _ &lt;| |_| | |_| | |___) | |_| | . \   ___) | | |_) |  __/  __/ (_| |
+  |_| \_\\__,_|\__, |_|____/|____/|_|\_\ |____/|_| .__/ \___|\___|\__,_|
+               |___/                             |_|
+                                        -- Presented by ISCAS and Sipeed
+
+  Debian GNU/Linux 12 (bookworm) (kernel 5.10.113+)
+
+Linux lpi4a 5.10.113+ #1 SMP PREEMPT Wed Dec 20 08:25:29 UTC 2023 riscv64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+debian@lpi4a:~$
+</code></pre>
+<p>The image contains python3 so you can run a basic hello-world in the python repl:</p>
+<pre><code class="language-bash">python3
+# Python 3.11.4 (main, Jun  7 2023, 10:13:09) [GCC 12.2.0] on linux
+# Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+# &gt;&gt;&gt; print(&quot;Hello, World&quot;)
+# Hello, World
+&lt;Ctrl + D&gt;
+</code></pre>
+<p>Run <code>uname</code> utility to print the information about current machine:</p>
+<pre><code class="language-bash">uname -a
+# Linux lpi4a 5.10.113+ #1 SMP PREEMPT Wed Dec 20 08:25:29 UTC 2023 riscv64 GNU/Linux
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../04-linux-intro/01-preparations.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../04-linux-intro/01-preparations.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
