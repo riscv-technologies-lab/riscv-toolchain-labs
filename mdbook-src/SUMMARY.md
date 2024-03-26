@@ -15,3 +15,4 @@
 - [Linux intro](./04-linux-intro/00-linux-intro.md)
 
   - [Prerequisites](./04-linux-intro/01-preparations.md)
+  - [RevyOS on QEMU](./04-linux-intro/02-boot-revyos-linux-qemu.md)
