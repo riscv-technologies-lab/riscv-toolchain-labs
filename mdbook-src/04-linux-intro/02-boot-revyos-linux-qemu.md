@@ -145,11 +145,11 @@ cat /mnt/root/etc/fstab
 Now you can launch qemu with the following command:
 
 ```bash
-sudo umount /mnt/boot
+sudo umount /mnt/root
 e2fsck -y LPI4A_BASIC_20240111/root.ext4
 e2fsck -y LPI4A_BASIC_20240111/boot.ext4
 sync
-qemu-system-riscv64 -M virt -cpu c910v -smp 1 -m 3G -kernel /mnt/boot/Image -append "root=/dev/vda rw console=ttyS0" -drive file=LPI4A_BASIC_20240111/root.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -drive file=LPI4A_BASIC_20240111/boot.ext4,format=raw,id=hd1 -device virtio-blk-device,drive=hd1 -initrd /mnt/boot/initrd.img-5.10.113-lpi4a -nographic
+revyos-qemu/build/qemu-system-riscv64 -M virt -cpu c910v -smp 1 -m 3G -kernel /mnt/boot/Image -append "root=/dev/vda rw console=ttyS0" -drive file=LPI4A_BASIC_20240111/root.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -drive file=LPI4A_BASIC_20240111/boot.ext4,format=raw,id=hd1 -device virtio-blk-device,drive=hd1 -initrd /mnt/boot/initrd.img-5.10.113-lpi4a -nographic
 ```
 
 You will see the boot log that looks something like this:
