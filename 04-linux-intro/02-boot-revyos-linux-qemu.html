@@ -300,11 +300,11 @@ cat /mnt/root/etc/fstab
 # /dev/vdb /boot   auto    defaults    0 0
 </code></pre>
 <p>Now you can launch qemu with the following command:</p>
-<pre><code class="language-bash">sudo umount /mnt/boot
+<pre><code class="language-bash">sudo umount /mnt/root
 e2fsck -y LPI4A_BASIC_20240111/root.ext4
 e2fsck -y LPI4A_BASIC_20240111/boot.ext4
 sync
-qemu-system-riscv64 -M virt -cpu c910v -smp 1 -m 3G -kernel /mnt/boot/Image -append &quot;root=/dev/vda rw console=ttyS0&quot; -drive file=LPI4A_BASIC_20240111/root.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -drive file=LPI4A_BASIC_20240111/boot.ext4,format=raw,id=hd1 -device virtio-blk-device,drive=hd1 -initrd /mnt/boot/initrd.img-5.10.113-lpi4a -nographic
+revyos-qemu/build/qemu-system-riscv64 -M virt -cpu c910v -smp 1 -m 3G -kernel /mnt/boot/Image -append &quot;root=/dev/vda rw console=ttyS0&quot; -drive file=LPI4A_BASIC_20240111/root.ext4,format=raw,id=hd0 -device virtio-blk-device,drive=hd0 -drive file=LPI4A_BASIC_20240111/boot.ext4,format=raw,id=hd1 -device virtio-blk-device,drive=hd1 -initrd /mnt/boot/initrd.img-5.10.113-lpi4a -nographic
 </code></pre>
 <p>You will see the boot log that looks something like this:</p>
 <pre><code>OpenSBI v0.9
