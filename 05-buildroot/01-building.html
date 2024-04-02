@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction to cross compilation - Introduction to cross-toolchains for RISC-V</title>
+        <title>Building an image for LP4A - Introduction to cross-toolchains for RISC-V</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html" class="active"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li><li class="chapter-item expanded "><a href="../05-buildroot/00-intro.html"><strong aria-hidden="true">5.</strong> Buildroot</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../05-buildroot/01-building.html"><strong aria-hidden="true">5.1.</strong> Building an image for LP4A</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li><li class="chapter-item expanded "><a href="../05-buildroot/00-intro.html"><strong aria-hidden="true">5.</strong> Buildroot</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../05-buildroot/01-building.html" class="active"><strong aria-hidden="true">5.1.</strong> Building an image for LP4A</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -176,26 +176,114 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction-to-cross-compilation"><a class="header" href="#introduction-to-cross-compilation">Introduction to cross-compilation</a></h1>
-<p>This lesson shall serve as an introduction to cross-compilation and user mode
-emulation. We assume the reader has some previous knowledge of C/C++ languages
-and is familiar with linux and command line. It's recommended to review the following
-resources before diving into practical aspects:</p>
+                        <h2 id="cross-compiling-a-system-for-risc-v-with-buildroot"><a class="header" href="#cross-compiling-a-system-for-risc-v-with-buildroot">Cross compiling a system for RISC-V with Buildroot</a></h2>
+<h3 id="getting-buildroot"><a class="header" href="#getting-buildroot">Getting buildroot</a></h3>
+<p>First off you will need to install dependencies and download mainline buildroot.</p>
+<pre><code class="language-bash">wget https://buildroot.org/downloads/buildroot-2024.02.1.tar.gz
+tar -xzvf buildroot-2024.02.1.tar.gz
+cd buildroot-2024.02.1/
+sudo apt install libncurses-dev file cpio libssl-dev fdisk dosfstools cmake ccache build-essential
+</code></pre>
+<p>Create a <code>defconfig</code> file with the following command. This defines minimal set
+of buildroot options.</p>
+<pre><code class="language-bash">echo 'BR2_riscv=y
+BR2_RISCV_ISA_RVC
+BR2_TOOLCHAIN_BUILDROOT_MUSL=y
+BR2_PACKAGE_HOST_LINUX_HEADERS_CUSTOM_5_10=y
+BR2_GCC_VERSION_13_X=y
+BR2_LINUX_KERNEL=y
+BR2_LINUX_KERNEL_CUSTOM_GIT=y
+BR2_LINUX_KERNEL_CUSTOM_REPO_URL=&quot;https://github.com/revyos/thead-kernel&quot;
+BR2_LINUX_KERNEL_CUSTOM_REPO_VERSION=&quot;lpi4a&quot;
+BR2_LINUX_KERNEL_DEFCONFIG=&quot;revyos&quot;
+BR2_LINUX_KERNEL_DTS_SUPPORT=y
+BR2_LINUX_KERNEL_INTREE_DTS_NAME=&quot;thead/light-lpi4a&quot;
+BR2_LINUX_KERNEL_NEEDS_HOST_PAHOLE=y
+BR2_TARGET_ROOTFS_EXT2=y
+BR2_TARGET_ROOTFS_EXT2_4=y
+BR2_TARGET_ROOTFS_EXT2_SIZE=&quot;512M&quot;
+BR2_TARGET_ROOTFS_INITRAMFS=y
+# BR2_TARGET_ROOTFS_TAR is not set
+BR2_TARGET_OPENSBI=y
+BR2_TARGET_OPENSBI_CUSTOM_GIT=y
+BR2_TARGET_OPENSBI_CUSTOM_REPO_URL=&quot;https://github.com/revyos/opensbi&quot;
+BR2_TARGET_OPENSBI_CUSTOM_REPO_VERSION=&quot;th1520-v1.4&quot;
+BR2_TARGET_OPENSBI_PLAT=&quot;generic&quot;
+# BR2_TARGET_OPENSBI_INSTALL_JUMP_IMG is not set
+BR2_TARGET_UBOOT=y
+BR2_TARGET_UBOOT_BUILD_SYSTEM_KCONFIG=y
+BR2_TARGET_UBOOT_CUSTOM_GIT=y
+BR2_TARGET_UBOOT_CUSTOM_REPO_URL=&quot;https://github.com/revyos/thead-u-boot&quot;
+BR2_TARGET_UBOOT_CUSTOM_REPO_VERSION=&quot;th1520&quot;
+BR2_TARGET_UBOOT_BOARD_DEFCONFIG=&quot;light_lpi4a&quot;
+BR2_TARGET_UBOOT_NEEDS_OPENSBI=y
+BR2_TARGET_UBOOT_SPL=y
+BR2_PACKAGE_HOST_UBOOT_TOOLS=y' &gt; defconfig
+</code></pre>
+<p>Then create <code>.config</code> via <code>make</code>:</p>
+<pre><code>make defconfig BR2_DEFCONFIG=./defconfig
+</code></pre>
+<p>Now the only thing left to do is launch <code>make</code> and wait till completion.
+Depending on the machine this might take a while.</p>
+<p>Next you will need to fetch vendor-provided binary blobs (boot firmware):</p>
+<pre><code>wget https://github.com/revyos/th1520-boot-firmware/archive/refs/tags/20240127+sdk1.4.2.tar.gz
+tar -xzvf 20240127+sdk1.4.2.tar.gz
+</code></pre>
+<p>Now we can create out boot filesystem partition:</p>
+<pre><code>dd if=/dev/zero of=output/images/bootfs.ext4 bs=4M count=32 &amp;&amp; sync
+sudo mkfs.ext4 output/images/bootfs.ext4
+sudo mkdir /mnt/boot -p
+sudo mount output/images/bootfs.ext4 /mnt/boot
+sudo mkdir /mnt/boot/extlinux/dtbs -p
+sudo cp output/images/fw_dynamic.bin output/images/Image /mnt/boot
+sudo cp th1520-boot-firmware-20240127-sdk1.4.2/addons/boot/light_* /mnt/boot/
+sudo cp output/images/light-lpi4a.dtb /mnt/boot/extlinux/dtbs
+sudo rm /mnt/boot/lost+found -rf
+</code></pre>
+<p>Create <code>extlinux.conf</code>:</p>
+<pre><code class="language-bash">echo 'DEFAULT makeshiftos-default
+MENU TITLE ------------------------------------------------------------
+TIMEOUT 50
+
+label makeshiftos-default
+  MENU LABEL MakeShiftOS Default
+  LINUX /Image
+  FDT dtbs/light-lpi4a.dtb
+  append root=/dev/mmcblk0p3 console=ttyS0,115200 rootwait rw earlycon clk_ignore_unused loglevel=7 eth= rootrwoptions=rw,noatime rootrwreset=yes' &gt; extlinux.conf
+sudo mv extlinux.conf /mnt/boot/extlinux/extlinux.conf
+</code></pre>
+<p>Unmount the filesystem and flash it to the LP4A board:</p>
+<pre><code>sync
+sudo umount /mnt/boot
+</code></pre>
+<pre><code>sudo ./fastboot flash ram output/images/u-boot-spl.bin
+sudo ./fastboot reboot
+sudo ./fastboot flash uboot output/images/u-boot-spl.bin
+sudo ./fastboot flash boot output/images/bootfs.ext4
+sudo ./fastboot flash root output/images/rootfs.ext4
+</code></pre>
+<p>(Optional) When connecting via UART you will need to set serial options in
+the following way:</p>
+<pre><code>sudo stty -F /dev/ttyUSB0 ispeed 115200 ospeed 115200 cs8 raw
+</code></pre>
+<h3 id="references"><a class="header" href="#references">References</a></h3>
 <ul>
-<li><a href="http://landley.net/writing/docs/cross-compiling.html">Introduction to cross-compiling for Linux</a></li>
-<li><a href="https://youtu.be/335ylTUlyng?si=VbfusqEvtgz4_iNL">Toolchain &amp; Pony 🦄</a></li>
+<li><a href="https://archive.fosdem.org/2019/schedule/event/riscvbuildroot/attachments/slides/3040/export/events/attachments/riscvbuildroot/slides/3040/FOSDEM_2019_Buildroot_RISCV.pdf">Mark Corbin _ Buildroot for RISC-V</a></li>
+<li><a href="https://www.youtube.com/watch?v=cIkTh3Xp3dA&amp;t=1333s">Bootlin _ Embedded Linux from Scratch in 45 minutes, on RISC-V</a></li>
+<li><a href="https://www.youtube.com/watch?v=KQjRnuwb7is">David Hand _ &quot;Linux initramfs for fun, and, uh...&quot;</a></li>
+<li><a href="https://www.youtube.com/watch?v=m_NyYEBxfn8">Device Tree for Dummies! - Thomas Petazzoni, Free Electrons</a></li>
+<li><a href="https://www.youtube.com/watch?v=vcAVx8CV2fY">Kernel Recipes 2022 - Linux on RISC-V</a></li>
+<li><a href="https://popovicu.com/posts/risc-v-sbi-and-full-boot-process/">RISC-V SBI and the full boot process</a></li>
 </ul>
-<p>In this lesson you will learn how to build a simple C program targeting with cross-gcc toolchain targeting riscv64 arch
-and run it on your computer via <a href="https://www.qemu.org/docs/master/user/main.html">qemu-user</a>.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-
-                            <a rel="next prefetch" href="../01-intro-to-cross/01-hello-riscv.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
+                            <a rel="prev" href="../05-buildroot/00-intro.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
                             </a>
+
 
                         <div style="clear: both"></div>
                     </nav>
@@ -203,10 +291,10 @@ and run it on your computer via <a href="https://www.qemu.org/docs/master/user/m
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-
-                    <a rel="next prefetch" href="../01-intro-to-cross/01-hello-riscv.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
+                    <a rel="prev" href="../05-buildroot/00-intro.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
                     </a>
+
             </nav>
 
         </div>

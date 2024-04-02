@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Introduction to cross compilation - Introduction to cross-toolchains for RISC-V</title>
+        <title>Buildroot - Introduction to cross-toolchains for RISC-V</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html" class="active"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li><li class="chapter-item expanded "><a href="../05-buildroot/00-intro.html"><strong aria-hidden="true">5.</strong> Buildroot</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../05-buildroot/01-building.html"><strong aria-hidden="true">5.1.</strong> Building an image for LP4A</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><li class="part-title">Instructions</li><li class="chapter-item expanded "><a href="../01-intro-to-cross/00-title-page.html"><strong aria-hidden="true">1.</strong> Introduction to cross compilation</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../01-intro-to-cross/01-hello-riscv.html"><strong aria-hidden="true">1.1.</strong> Hello World!</a></li></ol></li><li class="chapter-item expanded "><a href="../02-toolchain/02-toolchain.html"><strong aria-hidden="true">2.</strong> Toolchain</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../02-toolchain/02-live-coding.html"><strong aria-hidden="true">2.1.</strong> Live Coding</a></li></ol></li><li class="chapter-item expanded "><a href="../03-linkers/03-linkers.html"><strong aria-hidden="true">3.</strong> Linkers</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/00-linux-intro.html"><strong aria-hidden="true">4.</strong> Linux intro</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../04-linux-intro/01-preparations.html"><strong aria-hidden="true">4.1.</strong> Prerequisites</a></li><li class="chapter-item expanded "><a href="../04-linux-intro/02-boot-revyos-linux-qemu.html"><strong aria-hidden="true">4.2.</strong> RevyOS on QEMU</a></li></ol></li><li class="chapter-item expanded "><a href="../05-buildroot/00-intro.html" class="active"><strong aria-hidden="true">5.</strong> Buildroot</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../05-buildroot/01-building.html"><strong aria-hidden="true">5.1.</strong> Building an image for LP4A</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -176,24 +176,27 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction-to-cross-compilation"><a class="header" href="#introduction-to-cross-compilation">Introduction to cross-compilation</a></h1>
-<p>This lesson shall serve as an introduction to cross-compilation and user mode
-emulation. We assume the reader has some previous knowledge of C/C++ languages
-and is familiar with linux and command line. It's recommended to review the following
-resources before diving into practical aspects:</p>
-<ul>
-<li><a href="http://landley.net/writing/docs/cross-compiling.html">Introduction to cross-compiling for Linux</a></li>
-<li><a href="https://youtu.be/335ylTUlyng?si=VbfusqEvtgz4_iNL">Toolchain &amp; Pony 🦄</a></li>
-</ul>
-<p>In this lesson you will learn how to build a simple C program targeting with cross-gcc toolchain targeting riscv64 arch
-and run it on your computer via <a href="https://www.qemu.org/docs/master/user/main.html">qemu-user</a>.</p>
+                        <h2 id="using-buildroot-to-cross-compile-embedded-linux-systems"><a class="header" href="#using-buildroot-to-cross-compile-embedded-linux-systems">Using buildroot to cross-compile embedded linux systems</a></h2>
+<blockquote>
+<p>Buildroot is a simple, efficient and easy-to-use tool to generate embedded Linux systems through cross-compilation.</p>
+</blockquote>
+<p>Buildroot is a widely used tool for cross-compilation. It's quite easy to use
+compared to alternatives like <a href="https://www.yoctoproject.org/">yocto</a>.
+It takes care of bootstrapping a suitable toolchain with support for various
+standard library implementations (glibc, musl, uClibc-ng). Most importantly
+it can build rootfs from scratch including the necessary bootloaders.</p>
+<p>In this lab we will be using mainline buildroot to build a bootable disk image
+for Sipeed LP4A.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../04-linux-intro/02-boot-revyos-linux-qemu.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
-                            <a rel="next prefetch" href="../01-intro-to-cross/01-hello-riscv.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../05-buildroot/01-building.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -203,8 +206,11 @@ and run it on your computer via <a href="https://www.qemu.org/docs/master/user/m
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../04-linux-intro/02-boot-revyos-linux-qemu.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
-                    <a rel="next prefetch" href="../01-intro-to-cross/01-hello-riscv.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../05-buildroot/01-building.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
