@@ -16,3 +16,7 @@
 
   - [Prerequisites](./04-linux-intro/01-preparations.md)
   - [RevyOS on QEMU](./04-linux-intro/02-boot-revyos-linux-qemu.md)
+
+- [Buildroot](./05-buildroot/00-intro.md)
+
+  - [Building an image for LP4A](./05-buildroot/01-building.md)
