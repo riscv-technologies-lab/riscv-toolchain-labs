@@ -4,3 +4,6 @@ book/
 **/*.elf
 **/build/
 .vscode/
+**/*.S
+**/*.o
+
