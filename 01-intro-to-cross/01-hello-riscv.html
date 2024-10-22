@@ -187,8 +187,7 @@ cd cross-labs/labs/01-hello-riscv
 </code></pre>
 <p>Let's compile a simple hello world program natively. Take a look at
 the <code>Makefile</code> that we've prepared.</p>
-<pre><code class="language-c">#include &lt;stdio.h&gt;
-int main() { printf(&quot;Hello, RISC-V!\n&quot;); }
+<pre><code class="language-c">{{#include ../../labs/01-hello-riscv/hello.c}}
 </code></pre>
 <pre><code class="language-bash">make run # compile the program natively
 # gcc hello.c -o build/hello.elf
