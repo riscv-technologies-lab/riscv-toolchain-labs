@@ -1,11 +1,10 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int foo() {
-  int* nullptr = NULL;
+  int *nullptr = NULL;
   return *nullptr;
 }
-
 
 int main() {
   int input = 0;
