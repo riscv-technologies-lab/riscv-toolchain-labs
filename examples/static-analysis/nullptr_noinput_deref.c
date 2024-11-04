@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 int foo() {
-  int* nullptr = NULL;
+  int *nullptr = NULL;
   return *nullptr;
 }
 
