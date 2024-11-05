@@ -25,5 +25,9 @@ in
         mdbook
         just
         act
+        pandoc
+        texliveMedium
+        liberation_ttf
+        mermaid-filter
       ];
     }
